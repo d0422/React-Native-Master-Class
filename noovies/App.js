@@ -1,11 +1,11 @@
-import AppLoading from "expo-app-loading";
 import React from "react";
 import * as Font from "expo-font";
 import { Ionicons } from "@expo/vector-icons";
 import { Asset, useAssets } from "expo-asset";
-import { Text } from "react-native";
+import { Text, View } from "react-native";
 import Tabs from "./navigation/Tabs";
 import { NavigationContainer } from "@react-navigation/native";
+import { QueryClient, QueryClientProvider } from "react-query";
 // const loadFonts = (fonts)=>fonts.map(font=>Font.loadAsync(font))
 // const loadAssets =(assets)=> assets.map(asset=>{
 //   if(typeof asset===String){
@@ -14,6 +14,7 @@ import { NavigationContainer } from "@react-navigation/native";
 //   else
 //     return Asset.loadAsync(asset)
 // })
+const queryClient = new QueryClient();
 export default function App() {
   // const [ready, setReady] = useState(false);
   // const onFinish = () => setReady(ture);
@@ -24,11 +25,17 @@ export default function App() {
   const [assets] = useAssets([]);
   const [loaded] = Font.useFonts(Ionicons.font);
   if (!assets || !loaded) {
-    return <AppLoading />;
+    return (
+      <View>
+        <Text>Loading</Text>
+      </View>
+    );
   }
   return (
-    <NavigationContainer>
-      <Tabs />
-    </NavigationContainer>
+    <QueryClientProvider client={queryClient}>
+      <NavigationContainer>
+        <Tabs />
+      </NavigationContainer>
+    </QueryClientProvider>
   );
 }
