@@ -12,6 +12,7 @@ import useQuery from "react-query";
 import axios from "axios";
 import { makeImgPath } from "../utils";
 import { BlurView } from "expo-blur";
+import RNFetchBlob from "rn-fetch-blob";
 const BASE_URL = `https://api.themoviedb.org/3`;
 const API_KEY = `0b509fc29bded6c0c259c6203d006b72`;
 
@@ -59,10 +60,14 @@ const Movies = () => {
   const [Loading, setLoading] = useState(true);
   const [nowplaying, setNowPlaying] = useState([]);
   const getNowPlaying = () => {
-    const results = axios.get(
-      `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=ko-KR&page=1&region=KR`
-    );
-    setNowPlaying(results);
+    RNFetchBlob.config({
+      trusty: false,
+    })
+      .fetch(
+        "GET",
+        `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=ko-KR&page=1&region=KR`
+      )
+      .then((res) => console.log(res));
     setLoading(false);
   };
   useEffect(() => {
@@ -80,7 +85,7 @@ const Movies = () => {
         controlsEnabled={false}
         containerStyle={{ width: "100%", height: SCREEN_HEIGHT / 4 }}
       >
-        {nowplaying?.map((movie) => (
+        {nowplaying.map((movie) => (
           <View key={movie.id}>
             <BgImg
               style={StyleSheet.absoluteFill}
@@ -94,7 +99,7 @@ const Movies = () => {
               <Wrapper>
                 <Poster source={{ uri: makeImgPath(movie.poster_path) }} />
                 <Column>
-                  <Title>{movie.original_title}</Title>
+                  <Title>{movie.original_title}ddd</Title>
                   <Overview>{movie.overview.slice(0, 90)}...</Overview>
                   <Votes>★{movie.vote_average}/10</Votes>
                 </Column>
