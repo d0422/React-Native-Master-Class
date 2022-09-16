@@ -54,12 +54,26 @@ const Votes = styled(Overview)`
   margin-top: 5px;
 `;
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
-
+interface Iresults {
+  results: Iresult[];
+}
+interface Iresult {
+  backdrop_path: string;
+  overview: string;
+  vote_average: number;
+  title: string;
+  id: number;
+  original_title: string;
+  poster_path: string;
+}
 const Movies = () => {
   const isDark = useColorScheme() === "dark";
   const [Loading, setLoading] = useState(true);
-  const [nowplaying, setNowPlaying] = useState([]);
+  const [nowplaying, setNowPlaying] = useState<Iresults>();
   const getNowPlaying = () => {
+    console.log(
+      `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=ko-KR&page=1&region=KR`
+    );
     RNFetchBlob.config({
       trusty: false,
     })
@@ -67,7 +81,10 @@ const Movies = () => {
         "GET",
         `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=ko-KR&page=1&region=KR`
       )
-      .then((res) => console.log(res));
+      .then((res) => {
+        setNowPlaying(res.data);
+        console.log(res.data);
+      });
     setLoading(false);
   };
   useEffect(() => {
@@ -85,28 +102,29 @@ const Movies = () => {
         controlsEnabled={false}
         containerStyle={{ width: "100%", height: SCREEN_HEIGHT / 4 }}
       >
-        {nowplaying.map((movie) => (
-          <View key={movie.id}>
-            <BgImg
-              style={StyleSheet.absoluteFill}
-              source={{ uri: makeImgPath(movie.backdrop_path) }}
-            ></BgImg>
-            <BlurView
-              tint={isDark ? "dark" : "light"}
-              intensity={80}
-              style={StyleSheet.absoluteFill}
-            >
-              <Wrapper>
-                <Poster source={{ uri: makeImgPath(movie.poster_path) }} />
-                <Column>
-                  <Title>{movie.original_title}ddd</Title>
-                  <Overview>{movie.overview.slice(0, 90)}...</Overview>
-                  <Votes>★{movie.vote_average}/10</Votes>
-                </Column>
-              </Wrapper>
-            </BlurView>
-          </View>
-        ))}
+        {nowplaying &&
+          nowplaying.map((movie: Iresult) => (
+            <View key={movie.id}>
+              <BgImg
+                style={StyleSheet.absoluteFill}
+                source={{ uri: makeImgPath(movie.backdrop_path) }}
+              ></BgImg>
+              <BlurView
+                tint={isDark ? "dark" : "light"}
+                intensity={80}
+                style={StyleSheet.absoluteFill}
+              >
+                <Wrapper>
+                  <Poster source={{ uri: makeImgPath(movie.poster_path) }} />
+                  <Column>
+                    <Title>{movie.original_title}ddd</Title>
+                    <Overview>{movie.overview.slice(0, 90)}...</Overview>
+                    <Votes>★{movie.vote_average}/10</Votes>
+                  </Column>
+                </Wrapper>
+              </BlurView>
+            </View>
+          ))}
       </Swiper>
     </Container>
   );
